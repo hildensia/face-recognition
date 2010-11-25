@@ -1,0 +1,896 @@
+#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{todonotes}
+\end_preamble
+\options a4wide
+\use_default_options true
+\language ngerman
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize a4paper
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Eigenfaces
+\end_layout
+
+\begin_layout Author
+Johannes Kulick
+\end_layout
+
+\begin_layout Section
+Einleitung
+\end_layout
+
+\begin_layout Itemize
+Gesichtserkennung als Sicherheitsfeature
+\end_layout
+
+\begin_layout Itemize
+Multimediaanwendung
+\end_layout
+
+\begin_layout Itemize
+Geschichtliches (Eigenfaces als erste relevante Technik)
+\end_layout
+
+\begin_layout Section
+Gesichtserkennung als Mathematisches Problem
+\end_layout
+
+\begin_layout Standard
+Gesichtserkennung wird in dieser Arbeit als Problem auf zwei dimensionalen
+ Grauwertbildern aufgefasst.
+ Die Eingabe für entsprechende Algorithmen ist also eine 
+\begin_inset Formula $n\times m$
+\end_inset
+
+ Grauwertmatrix, das Bild.
+ Jeder Grauwert ist 8 Bit groß, ist also ein Wert aus dem Intervall 
+\begin_inset Formula $[0,255]$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Zusätzlich gibt es 
+\begin_inset Formula $t$
+\end_inset
+
+ Trainingsbilder, denen jeweils ein Schlüssel  
+\begin_inset Formula $k_{i}\in k_{1},\ldots,k_{j},j\le t$
+\end_inset
+
+ zugeordnet ist, die Person.
+ Die Aufgabe des Gesichtserkennungsalgorithmus ist nun bei Eingabe eines
+ neuen Bildes den Schlüssel 
+\begin_inset Formula $k_{l}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+2d bilder
+\end_layout
+
+\begin_layout Section
+Eigenfaces als Repräsentation von Gesichtern
+\end_layout
+
+\begin_layout Subsection
+PCA
+\end_layout
+
+\begin_layout Standard
+Der Eigenfaces Algorithmus beruht im Wesentlichen auf einer Hauptkomponentenanal
+yse der Trainingsbilder.
+ Die Hauptkomponenten dienen im weiteren Verlauf als Fingerabdruck eines
+ Gesichts.
+\end_layout
+
+\begin_layout Standard
+Die Hauptkomponentenanalyse ist ein statistisches Verfahren, bei dem in
+ einer 
+\begin_inset Formula $n$
+\end_inset
+
+-dimensionale Punktmenge die Basis gefunden wird, bei der die Punkte in
+ Richtung der Basisvektoren die größte Varianz aufweisen.
+ Diese Basisvektoren sind die sogenannten Hauptkomponenten, sortiert nach
+ der Varianz der Daten bezüglich dieses Basisvektors.
+ Die erste Hauptkomponente, ist also genau der Basisvektor, in dessen Richtung
+ die Punkte die größte Varianz aufweisen.
+ Für eine Menge zwei dimensionaler Punkte ist dies in Abbildung 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Ein-Datencluster"
+
+\end_inset
+
+ dargestellt.
+\end_layout
+
+\begin_layout Standard
+Das Problem der Findung der Hauptkomponenten wurde zuerst als geometrisches
+ Problem durch Pearson beschrieben 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "pearson-1901"
+
+\end_inset
+
+.
+ Der hier beschriebene Ansatz zur Berechnung der Haupotkomponenten als Optimieru
+ngsproblem geht auf Hotelling 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "hotelling-1933"
+
+\end_inset
+
+ zurück und wird in vielen Textbüchern zu statistischen Verfahren beschrieben
+ (zum Beispiel 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "webb-2002"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pca.png
+	width 70text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\family sans
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Ein-Datencluster"
+
+\end_inset
+
+Ein Datencluster im 2-dimensionalen Raum mit den beiden Hauptkomponenten
+ (rot)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Seien 
+\begin_inset Formula $X_{1},\ldots,X_{m}\in\mathbb{R}^{n}$
+\end_inset
+
+ Vektoren und 
+\begin_inset Formula $M\in\mathbb{R}^{m\times n}$
+\end_inset
+
+ eine 
+\begin_inset Formula $m\times n$
+\end_inset
+
+ Matrix, mit 
+\begin_inset Formula $M=\left(\begin{array}{cccc}
+X_{1} & X_{2} & \ldots & X_{m}\end{array}\right)$
+\end_inset
+
+.
+ Ziel ist es nun, die Hauptkomponenten dieser Datenmatrix zu finden.
+\end_layout
+
+\begin_layout Standard
+Wir fassen nun jeden Vektor 
+\begin_inset Formula $X_{i}$
+\end_inset
+
+ als Belegung eines 
+\begin_inset Formula $n$
+\end_inset
+
+-dimensionalen Zufallsvektors 
+\begin_inset Formula $X$
+\end_inset
+
+ auf.
+ Wir nehmen an, dass diese Belegungen normalverteilt um ihren Mittelwert
+ 
+\begin_inset Formula $\mu=\frac{1}{m}\sum_{i=1}^{m}X_{i}$
+\end_inset
+
+ sind, also gilt auch das der Erwartungswert 
+\begin_inset Formula $E[X]=\mu$
+\end_inset
+
+ ist und wir die Kovarianzmatrix
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\Sigma=E\left[(X-\mu)(X-\mu)^{T}\right]=E\left[XX^{T}\right]-\mu\mu^{T}\]
+
+\end_inset
+
+haben.
+\end_layout
+
+\begin_layout Standard
+Obiges Problem ist nun analog dazu, neue Zufallsvariablen 
+\begin_inset Formula $Z$
+\end_inset
+
+ zu finden, die eine Lineartransformation von 
+\begin_inset Formula $X$
+\end_inset
+
+ sind, also 
+\begin_inset Formula $Z_{i}=a_{i}^{T}X$
+\end_inset
+
+ mit 
+\begin_inset Formula $a$
+\end_inset
+
+ einer noch zu findenden 
+\begin_inset Formula $(n\times n)$
+\end_inset
+
+ Matrix von konstanten Koeffizienten.
+ Diese neuen Variablen sollten möglichst unkorreliert sein, die Varianz
+ der einzelnen Zufallsvariablen soll also möglichst hoch sein.
+\end_layout
+
+\begin_layout Standard
+Um Abstände nach dem Basiswechsel gleich zu halten führen wir außerdem die
+ Nebenbedingung ein, dass 
+\begin_inset Formula $a_{j}^{T}a_{j}=\sum_{k=1}^{n}a_{jk}^{2}=1$
+\end_inset
+
+.
+ Dies entspricht einer Normierung der Basisvektoren auf die gleiche Länge
+ wie zuvor, die Abbildung wird also orthogonal.
+\end_layout
+
+\begin_layout Standard
+Die erste Hauptkomponente ist nun also die Zufallsvariable 
+\begin_inset Formula $Z_{1}$
+\end_inset
+
+, mit der höchsten Varainz.
+ Es gilt
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+Var\left(Z_{i}\right)=Var\left(a_{i}^{T}X\right)=E\left[a_{i}^{T}(X-\mu)(X-\mu)^{T}a_{i}\right]=a_{i}^{T}\Sigma a_{i}.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Um die Hauptkomponenten zu finden müssen wir also die Zielfunktion 
+\begin_inset Formula $a_{i}^{T}\Sigma a_{i}$
+\end_inset
+
+ maximieren, unter der gegebenen Nebenbedingung.
+ Dies ist ein Optimierungsproblem.
+ Zur Lösung nutzen wir Lagrange-Multiplikatoren 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "vapnyarskii-2001"
+
+\end_inset
+
+.
+ Die Lagrange Funktion mit dem Lagrange-Multiplikator 
+\begin_inset Formula $\lambda_{i}$
+\end_inset
+
+, die wir erhalten, ist
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula \[
+L(a_{i})=a_{i}^{T}\Sigma a_{i}-\lambda_{i}(a_{i}^{T}a_{i}-1).\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Wir differenzieren nach 
+\begin_inset Formula $a_{i}^{T}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\frac{\partial L}{\partial a_{i}^{T}}=2\Sigma a_{i}-2\lambda_{i}a_{i}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Um das Maximum zu erhalten setzen wir mit Null gleich und erhalten:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \begin{eqnarray*}
+0 & = & 2\Sigma a_{i}-2\lambda_{i}a_{i}\\
+0 & = & (\Sigma-\lambda_{i}I)a_{i}\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Wobei 
+\begin_inset Formula $I$
+\end_inset
+
+ die 
+\begin_inset Formula $n$
+\end_inset
+
+-dimensionale Identitätsmatrix darstellt.
+ Dies ist aber offenbar ein Eigenwertproblem 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "anton-1998"
+
+\end_inset
+
+.
+ Es sind also 
+\begin_inset Formula $a_{i}$
+\end_inset
+
+ genau die Eigenvektoren von 
+\begin_inset Formula $\Sigma$
+\end_inset
+
+ und 
+\begin_inset Formula $\lambda_{i}$
+\end_inset
+
+ die Eigenwerte.
+\end_layout
+
+\begin_layout Standard
+Nun ist 
+\begin_inset Formula $a$
+\end_inset
+
+ also genau die Basistransformationsmatrix, die uns einen Vektor gegeben
+ zur kanonischen Basis in den Vektorraum zur Basis der Hauptkomponenten
+ transformiert.
+ Die Hauptkomponenten sind also genau die kanonischen Basisvektoren transformier
+t mit 
+\begin_inset Formula $a$
+\end_inset
+
+, dies sind aber genau die Vektoren 
+\begin_inset Formula $a_{i}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Zwar ist die Berechnung von Eigenvektoren und -werten für höherdimensionale
+ Matrizen kein triviales Problem, es gibt aber eine Reihe stabiler und effizient
+er Algorithmen zur Berechnung.
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+todo{Ref}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Eigenfaces
+\end_layout
+
+\begin_layout Standard
+Viele frühe Gesichtserkennungsverfahren basieren auf Merkmalen, die menschenvers
+tehbar sind, wie beispielsweise Haarfarbe, Augenfarbe oder Position der
+ Gesichtsteile zueinander.
+ Diese Algorithmen ignorieren, dass solche Merkmale korreliert sein können,
+ oder aber zu wenig Information transportieren können 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "turk-1991a"
+
+\end_inset
+
+.
+ Zwar scheinen Menschen auf solche Merkmale zur Erkennung von Gesichtern
+ zurückzugreifen, da entsprechende Abläufe im Gehirn aber noch nicht vollständig
+ verstanden werden, ist es auch möglich das andere Features zur Erkennung
+ von Gesichtern wichtiger sind.
+ 
+\end_layout
+
+\begin_layout Standard
+Der Eigenface Ansatz abstrahiert von solchen greifbaren Merkmalen.
+ Stattdessen wurde ein ein Informationstheoretischer Ansatz gewählt, bei
+ dem aus den Gesichtsbildern Merkmale extrahiert werden, die möglichst unkorreli
+ert sind 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "turk-1991"
+
+\end_inset
+
+, die sogenannten 
+\emph on
+Eigenfaces
+\emph default
+.
+ Die Beschreibung der Berechnung von Eigenfaces folgt im wesentlichen 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "turk-1991"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Sei 
+\begin_inset Formula $T$
+\end_inset
+
+ eine Trainingsmenge der Größe 
+\begin_inset Formula $M$
+\end_inset
+
+ von Gesichtsbildern, also 
+\begin_inset Formula $n\times m$
+\end_inset
+
+ Matrizen mit ganzzahligen Werten im Intervall 
+\begin_inset Formula $[0,255]$
+\end_inset
+
+.
+ Diese fassen wir auch als 
+\begin_inset Formula $1\times n\cdot m$
+\end_inset
+
+-dimensionale Merkmalsvektoren auf.
+ Wir suchen jetzt die Matrizen bzw.
+ Merkmalsvektoren, aus denen wir mittels Linearkombination alle Trainingsbilder
+ rekonstruieren können und die möglichst unkorreliert sind.
+ Dies sind aber genau die Hauptkomponenten der Datenmenge.
+ Wir suchen also genau die Hauptkomponenten von 
+\begin_inset Formula $T$
+\end_inset
+
+, dise bilden dann die Eigenfaces.
+\end_layout
+
+\begin_layout Standard
+Zuerst erstellen wir ein Durchschnittsbild 
+\begin_inset Formula $\Psi$
+\end_inset
+
+ aller Gesichtsbilder 
+\begin_inset Formula $\Gamma_{i}\in T$
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\Psi=\frac{1}{M}\sum_{i=1}^{M}\Gamma_{i}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Wir nehmen an, das dies der Erwartungswert eines Gesichtsbildes ist, nehmen
+ also an, dass alle Gesichtsbilder normalverteilt um dieses Durchschnittsbild
+ sind.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+todo{In einen hinteren Abschnitt verschieben}
+\end_layout
+
+\end_inset
+
+Dies führt zu der Vorraussetzung, dass alle Bilder unter ähnlichen Bedingungen
+ hinsichtlich der Perspektive und des Hintergrundes gemacht werden müssen.
+ Verändert sich die Perspektive zum Gesicht deutlich, so kann ein Mittelwert
+ von Bildern nicht mehr sinnvoll berechnet werden.
+ Die Streuung um diesen wäre nun nicht mehr abhängig von der aufgenommenen
+ Person, sondern maßgeblich von der Perspektive.
+ Gleiches gilt für den Hintergrund.
+\end_layout
+
+\begin_layout Standard
+Nun gibt es zu jedem Gesicht 
+\begin_inset Formula $\Gamma_{i}$
+\end_inset
+
+ ein Differenzbild 
+\begin_inset Formula $\Phi_{i}$
+\end_inset
+
+, dass die Differenz zu 
+\begin_inset Formula $\Psi$
+\end_inset
+
+ ist:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\Phi_{i}=\Gamma_{i}-\Psi\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Diese geben also den Abstand zum Erwartungswert an und können so genutzt
+ werden um eine Kovarianzmatrix aufzustellen:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \begin{eqnarray*}
+Cov(T) & = & \frac{1}{M}\sum_{i=1}^{M}\Phi_{i}\Phi_{i}^{T}\\
+ & = & AA^{T}\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Wobei 
+\begin_inset Formula $A$
+\end_inset
+
+ die Matrix 
+\begin_inset Formula $\left[\begin{array}{cccc}
+\Phi_{1} & \Phi_{2} & \ldots & \Phi_{M}\end{array}\right]$
+\end_inset
+
+ ist.
+\end_layout
+
+\begin_layout Standard
+Von dieser Kovarianzmatrix müssen nun die Eigenvektoren und Eigenwerte berechnet
+ werden.
+ Wie bereits erwähnt handelt es sich bei 
+\begin_inset Formula $\Phi_{i}$
+\end_inset
+
+ um 
+\begin_inset Formula $n\cdot m$
+\end_inset
+
+ große Vektoren.
+ Selbst bei niedrig aufgelösten Bildern ergeben sich also sehr große Kovarianzma
+trizen.
+ Die Berechnung der Eigenvektoren und -werte ist dann aus Speichergründen
+ nicht mehr möglich.
+\end_layout
+
+\begin_layout Standard
+Da wir nur 
+\begin_inset Formula $M$
+\end_inset
+
+ Trainingsbilder haben, wobei 
+\begin_inset Formula $M$
+\end_inset
+
+ normalerweise deutlich kleiner ist als die Dimension der Bilder 
+\begin_inset Formula $n\cdot m$
+\end_inset
+
+, wird es maximal 
+\begin_inset Formula $M-1$
+\end_inset
+
+ Eigenfaces geben, die aussagekräftig sind.
+ Alle weiteren werden mit einem Eigenwert von 
+\begin_inset Formula $0$
+\end_inset
+
+ assoziiert sein.
+ Diese Eigenvektoren können aus den Eigenvektoren der Matrix 
+\begin_inset Formula $A^{T}A$
+\end_inset
+
+ berechnet werden 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "turk-2005"
+
+\end_inset
+
+.
+ Es gilt folgende Abhängigkeit von Eigenvektoren 
+\begin_inset Formula $v_{i}$
+\end_inset
+
+ und Eigenwerten 
+\begin_inset Formula $\lambda_{i}$
+\end_inset
+
+ der Kovarianzmatrix 
+\begin_inset Formula $C$
+\end_inset
+
+ von 
+\begin_inset Formula $T$
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+Cv_{i}=\lambda_{i}v_{i}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Seien 
+\begin_inset Formula $\hat{v}_{i}$
+\end_inset
+
+ die Eigenvektoren und 
+\begin_inset Formula $\mu_{i}$
+\end_inset
+
+ die Eigenwerte der Matrix 
+\begin_inset Formula $D=A^{T}A$
+\end_inset
+
+, so gilt:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \begin{eqnarray*}
+D\hat{v}_{i} & = & \mu_{i}\hat{v}_{i}\\
+A^{T}A\hat{v}_{i} & = & \mu_{i}\hat{v}_{i}\\
+AA^{T}A\hat{v}_{i} & = & \mu_{i}A\hat{v}_{i}\\
+C\left(A\hat{v}_{i}\right) & = & \mu_{i}\left(A\hat{v}_{i}\right)\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Die Eigenvektoren und -werte von 
+\begin_inset Formula $C$
+\end_inset
+
+ können also berechnet werden als:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \begin{eqnarray*}
+v_{i} & = & \left(A\hat{v}_{i}\right)\\
+\lambda_{i} & = & \mu_{i}\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Die Matrix 
+\begin_inset Formula $A^{T}A$
+\end_inset
+
+ ist aber nur eine 
+\begin_inset Formula $M\times M$
+\end_inset
+
+ Matrix, hat also deutlich weniger dimensionen als 
+\begin_inset Formula $AA^{T}$
+\end_inset
+
+.
+ Wir können ihre Eigenwerte also mit deutlich weniger Speicheraufwand berechnen.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+missingfigure{Bsp.
+ für Eigenfaces}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Berechnung von Eigenfaces aus Gesichtsbildern 
+\end_layout
+
+\begin_layout Itemize
+Bedingungen die an die Bilder gestellt werden
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Gleiche Perspektive
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+Eigenfaces als Feature-Vektor
+\end_layout
+
+\begin_layout Itemize
+Eigenfaces dienen nur der Repräsentation 
+\end_layout
+
+\begin_layout Itemize
+Bilder müssen in Gesichtsraum transformiert werden
+\end_layout
+
+\begin_layout Itemize
+diese Feature Vektoren dienen dann Mustererkennungsalgorithmen als Eingabe
+\end_layout
+
+\begin_layout Section
+Tests des Verfahrens
+\end_layout
+
+\begin_layout Itemize
+mittels Matlab oder Opencv 2 oder 3 Mustererkennungen programmieren
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Z.B.
+ 
+\begin_inset Formula $k$
+\end_inset
+
+-nearest neighbour & feed forward neuronales Netz
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Auswerten & vergleichen nach Erkennungsrate
+\end_layout
+
+\begin_layout Section
+Fazit
+\end_layout
+
+\begin_layout Itemize
+wie gut funktioniert der Ansatz?
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "literature"
+options "ieeetr"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
