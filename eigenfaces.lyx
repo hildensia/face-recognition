@@ -2,11 +2,18 @@
 \lyxformat 345
 \begin_document
 \begin_header
-\textclass article
+\textclass scrartcl
 \begin_preamble
 \usepackage{todonotes}
+
+\setkomafont{caption}{\sffamily}
+\setkomafont{captionlabel}{\sffamily}
+\setkomafont{sectioning}{\rmfamily\bfseries}
+
+\clubpenalty=10000
+\widowpenalty=10000
 \end_preamble
-\options a4wide
+\options a4wide, bibtotoc, chapterprefix,  numbers=noendperiod, abstracton, BCOR=5mm, 12pt
 \use_default_options true
 \language ngerman
 \inputencoding auto
@@ -52,6 +59,15 @@ Eigenfaces
 
 \begin_layout Author
 Johannes Kulick
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -592,7 +608,8 @@ status open
 
 
 \backslash
-todo{In einen hinteren Abschnitt verschieben}
+todo{In einen hinteren Abschnitt verschieben, vllt.
+ Fazit?}
 \end_layout
 
 \end_inset
@@ -795,15 +812,64 @@ Die Matrix
 \begin_inset Formula $M\times M$
 \end_inset
 
- Matrix, hat also deutlich weniger dimensionen als 
+ Matrix, hat also deutlich weniger Dimensionen als 
 \begin_inset Formula $AA^{T}$
 \end_inset
 
 .
- Wir können ihre Eigenwerte also mit deutlich weniger Speicheraufwand berechnen.
+ Wir können ihre Eigenvektoren und -werte also mit deutlich weniger Speicheraufw
+and berechnen und so auch Eigenvektoren von 
+\begin_inset Formula $AA^{T}$
+\end_inset
+
+.
+ 
 \end_layout
 
 \begin_layout Standard
+Wir sortieren nun die Eigenvektoren nach den assoziierten Eigenwerten.
+ Diese Hauptkomponenten nennen wir aufgrund ihres gesichtsähnlichen Aussehens
+ 
+\emph on
+Eigenfaces 
+\emph default
+(vgl.
+ Abbildung 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Eigenfaces"
+
+\end_inset
+
+).
+ Sie spannen einen Unterraum vom Raum aller 
+\begin_inset Formula $n\cdot m$
+\end_inset
+
+ Bilder auf, den wir 
+\emph on
+Gesichtsraum
+\emph default
+ nennen.
+ Dieser Gesichtsraum ist maximal 
+\begin_inset Formula $M$
+\end_inset
+
+-dimensional, die Dimension kann aber auch noch verringert werden, indem
+ nur die 
+\begin_inset Formula $k<M$
+\end_inset
+
+ ersten Hauptkomponenten genutzt werden.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
 \begin_inset ERT
 status open
 
@@ -820,34 +886,108 @@ missingfigure{Bsp.
 
 \end_layout
 
-\begin_layout Itemize
-Berechnung von Eigenfaces aus Gesichtsbildern 
+\begin_layout Plain Layout
+
+\family sans
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Eigenfaces"
+
+\end_inset
+
+Die ersten 
+\begin_inset Formula $m$
+\end_inset
+
+ Eigenfaces...
 \end_layout
 
-\begin_layout Itemize
-Bedingungen die an die Bilder gestellt werden
+\end_inset
+
+
 \end_layout
 
-\begin_deeper
-\begin_layout Itemize
-Gleiche Perspektive
+\begin_layout Plain Layout
+
 \end_layout
 
-\end_deeper
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Eigenfaces als Feature-Vektor
 \end_layout
 
-\begin_layout Itemize
-Eigenfaces dienen nur der Repräsentation 
+\begin_layout Standard
+Wie im vorigen Abschnitt beschrieben bilden die Eigenfaces den Gesichtsraum.
+ In 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "sirovich-1987"
+
+\end_inset
+
+ zeigen Sirovich und Kriby, dass relativ wenig Eigenfaces notwendig sind,
+ um Gesichter der Trainingsmenge zu recodieren.
+ Man benötigt also im allgemeinen nur 
+\begin_inset Formula $M'$
+\end_inset
+
+ Eigenfaces.
 \end_layout
 
-\begin_layout Itemize
-Bilder müssen in Gesichtsraum transformiert werden
+\begin_layout Standard
+Ein Gesicht 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ wird mit den Eigenfaces recodiert, indem wir es in den Gesichtsraum projezieren.
+ Wir erhalten dann also die Rekodierung 
+\begin_inset Formula $\Omega=\left[\begin{array}{cccc}
+\omega_{1} & \omega_{2} & \ldots & \omega_{M'}\end{array}\right]^{T}$
+\end_inset
+
+, mit
 \end_layout
 
-\begin_layout Itemize
-diese Feature Vektoren dienen dann Mustererkennungsalgorithmen als Eingabe
+\begin_layout Standard
+\begin_inset Formula \[
+\omega_{i}=v_{i}(\Gamma-\Psi).\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Jedes 
+\begin_inset Formula $\omega_{i}$
+\end_inset
+
+ ist nun der Anteil des Eigenface 
+\begin_inset Formula $i$
+\end_inset
+
+ am Gesichtsbild 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+.
+ Wenn wir nun Gesichter erkennen wollen, können wir nun die Recodierung
+ 
+\begin_inset Formula $\Omega$
+\end_inset
+
+ als Merkmalsvektor des Gesichtsbild auffassen.
+ Diesen nutzen wir als Eingabe für einen Mustererkennungsalgorithmus.
+ Eigenfaces selber dienen also nur als Repräsentation oder Features für
+ Gesichtsbilder.
+ Die eigentliche Erkennung wird nicht mit dem Eigenface Algorithmus ausgeführt.
 \end_layout
 
 \begin_layout Section
