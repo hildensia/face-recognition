@@ -13,7 +13,7 @@
 \clubpenalty=10000
 \widowpenalty=10000
 \end_preamble
-\options a4wide, bibtotoc, chapterprefix,  numbers=noendperiod, abstracton, BCOR=5mm, 12pt
+\options a4wide, bibtotoc, chapterprefix,  numbers=noendperiod, abstracton, BCOR=5mm
 \use_default_options true
 \language ngerman
 \inputencoding auto
@@ -54,7 +54,7 @@
 \begin_body
 
 \begin_layout Title
-Eigenfaces
+Eigenfaces zur Gesichtserkennung
 \end_layout
 
 \begin_layout Author
@@ -601,29 +601,6 @@ Wir nehmen an, das dies der Erwartungswert eines Gesichtsbildes ist, nehmen
 \end_layout
 
 \begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-todo{In einen hinteren Abschnitt verschieben, vllt.
- Fazit?}
-\end_layout
-
-\end_inset
-
-Dies führt zu der Vorraussetzung, dass alle Bilder unter ähnlichen Bedingungen
- hinsichtlich der Perspektive und des Hintergrundes gemacht werden müssen.
- Verändert sich die Perspektive zum Gesicht deutlich, so kann ein Mittelwert
- von Bildern nicht mehr sinnvoll berechnet werden.
- Die Streuung um diesen wäre nun nicht mehr abhängig von der aufgenommenen
- Person, sondern maßgeblich von der Perspektive.
- Gleiches gilt für den Hintergrund.
-\end_layout
-
-\begin_layout Standard
 Nun gibt es zu jedem Gesicht 
 \begin_inset Formula $\Gamma_{i}$
 \end_inset
@@ -870,25 +847,42 @@ sideways false
 status open
 
 \begin_layout Plain Layout
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-missingfigure{Bsp.
- für Eigenfaces}
-\end_layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename eigenfaces/eig01.png
+	lyxscale 60
+	width 25text%
 
 \end_inset
 
 
-\end_layout
+\begin_inset space \qquad{}
+\end_inset
 
-\begin_layout Plain Layout
+
+\begin_inset Graphics
+	filename eigenfaces/eig02.png
+	lyxscale 60
+	width 25text%
+
+\end_inset
+
+
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename eigenfaces/eig03.png
+	lyxscale 60
+	width 25text%
+
+\end_inset
+
 
 \family sans
+
 \begin_inset Caption
 
 \begin_layout Plain Layout
@@ -898,11 +892,8 @@ name "fig:Eigenfaces"
 
 \end_inset
 
-Die ersten 
-\begin_inset Formula $m$
-\end_inset
-
- Eigenfaces...
+Die ersten drei Eigenfaces des AT&T Datenbank Trainingssets.
+ Man erkennt deutlich die namensgebende Gesichtsähnlichkeit.
 \end_layout
 
 \end_inset
@@ -990,27 +981,583 @@ Jedes
  Die eigentliche Erkennung wird nicht mit dem Eigenface Algorithmus ausgeführt.
 \end_layout
 
+\begin_layout Subsection
+Gesichtserkennungs Algorithmen
+\end_layout
+
+\begin_layout Standard
+Um nun mit Eigenfaces Gesichter auch tatsächlich zu erkennen können unterschiedl
+iche Ansätze gewählt werden.
+ Der einfachste Algorithmus ist dabei ein 
+\emph on
+Nearest Neighbour
+\emph default
+ Ansatz, von Turk vorgeschlagen 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "turk-1991"
+
+\end_inset
+
+.
+ Es wird für jede Person 
+\begin_inset Formula $i$
+\end_inset
+
+, deren Gesicht erkannt werden soll, ein Durchschnittsbild 
+\begin_inset Formula $\Omega_{i}$
+\end_inset
+
+ von wenigen Bildern der Person im Gesichtsraum erstellt.
+ Nun minimieren wir den quadratischen euklidischen Abstand
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\varepsilon_{k}^{2}=\left\Vert \Omega_{k}-\Omega\right\Vert ^{2}.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ist 
+\begin_inset Formula $\min(\varepsilon_{k})$
+\end_inset
+
+ größer als ein Schwellenwert 
+\begin_inset Formula $\vartheta$
+\end_inset
+
+, so klassifizieren wir es als unbekannt, da es keinem bekannten Gesichtsbild
+ nah genug ist.
+ Sonst wird es als zur Klasse 
+\begin_inset Formula $k$
+\end_inset
+
+ zugehörig klassifiziert, zeigt also ein Bild von Person 
+\begin_inset Formula $k$
+\end_inset
+
+.
+ Zusätzlich kann man auch den Abstand des Bildes zum Gesichtsunterraum bestimmen.
+ Dieses ist die quadratische euklidische Entfernung des Eingabebildes, zentriert
+ um das Durchschnittsbild 
+\begin_inset Formula $\Phi=\Gamma-\Psi$
+\end_inset
+
+, und seiner Projektion im Gesichtsraum 
+\begin_inset Formula $\Phi_{f}=\sum_{i=1}^{M'}v_{i}\omega_{i}$
+\end_inset
+
+ (vergleiche Abbildung 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Projektion"
+
+\end_inset
+
+):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\varepsilon^{2}=\left\Vert \Phi-\Phi_{f}\right\Vert ^{2}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename eigenfaces/original.png
+	width 17text%
+
+\end_inset
+
+
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename eigenfaces/reconstruct.png
+	width 17text%
+
+\end_inset
+
+
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename eigenfaces/reconstruct20.png
+	width 17text%
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Graphics
+	filename eigenfaces/rad.JPG
+	lyxscale 220
+	width 17text%
+
+\end_inset
+
+
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename eigenfaces/reconstruct-rad.png
+	width 17text%
+
+\end_inset
+
+
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename eigenfaces/reconstruct-rad20.png
+	width 17text%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Projektion"
+
+\end_inset
+
+Ein Gesichtsbild aus der AT&T Datenbank und seine Projektion auf den Gesichtsrau
+m mit 165 Eigenfaces und mit 20 Eigenfaces.
+ Darunter ein Bild, das kein Gesicht zeigt, projeziert in den Gesichtsraum.
+ Man erkennt deutlich das die Projektion des Fahrrads keine Gesichter erzeugt,
+ der Abstand zum Gesichtsraum ist zu hoch.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ist dieser Abstand größer als ein Schwellenwert 
+\begin_inset Formula $\vartheta_{f}$
+\end_inset
+
+, so kann man davon ausgehen, dass das Bild kein Gesicht darstellt, da es
+ sich zu weit entfernt vom Raum der Gesichtsbilder befindet.
+\end_layout
+
+\begin_layout Standard
+Eine weitere naheliegende Möglichkeit ist die Nutzung eines künstlichen
+ neuronalen Netzes, die aber bisher in der Literatur noch nicht vorkommt
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Es gibt einen Journalbeitrag zu diesem Thema, der aber in großen Teilen
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "turk-1991"
+
+\end_inset
+
+ plagiiert und daher hier nicht weiter betrachtet wird.
+\end_layout
+
+\end_inset
+
+.
+ Dabei nutzen wir ein Feed Forward neuronales Netzwerk, wie in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Rojas1996"
+
+\end_inset
+
+ beschrieben.
+\end_layout
+
+\begin_layout Standard
+Als Eingabevektor dient 
+\begin_inset Formula $\Omega$
+\end_inset
+
+, für jedes bekannte Gesicht gibt es einen Ausgang.
+ Das Netzwerk wird dann mit dem Traingsset trainiert, wobei als Ausgabe
+ für Gesicht 
+\begin_inset Formula $\Gamma_{i}$
+\end_inset
+
+ der Zielvektor 
+\begin_inset Formula $\left[\begin{array}{cccc}
+t_{1} & t_{2} & \ldots & t_{n}\end{array}\right]^{T}$
+\end_inset
+
+ mit 
+\begin_inset Formula $t_{i}=1$
+\end_inset
+
+ und 
+\begin_inset Formula $t_{j}=0$
+\end_inset
+
+ für alle 
+\begin_inset Formula $j\not=i$
+\end_inset
+
+ gewählt wird.
+ Genutzt wird dafür der Backpropagation Algorithmus, ebenfalls beschrieben
+ in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Rojas1996"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Neue Bilder 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ werden dann ebenfalls in den Gesichtsraum projeziert und als Eingabe für
+ das neuronale Netz genutzt.
+ Der Ausgabevektor 
+\begin_inset Formula $\left[\begin{array}{cccc}
+a_{1} & a_{2} & \ldots & a_{n}\end{array}\right]^{T}$
+\end_inset
+
+ wird nun untersucht, ob es ein 
+\begin_inset Formula $a_{i}>\vartheta$
+\end_inset
+
+gibt, wobei 
+\begin_inset Formula $\vartheta$
+\end_inset
+
+ der Schwellenwert für die Zugehörigkeit zu einer Klasse ist.
+ Ist dies der Fall, so ist 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ ein Bild von Person 
+\begin_inset Formula $i$
+\end_inset
+
+.
+ Ist dies nicht der Fall, so ist das Bild von einer unbekannten Person.
+ Zusätzlich kann auch der Abstand zum Gesichtsraum berechnet werden, welcher
+ wiederum festlegt, ob das Bild überhaupt ein Gesicht zeigt oder nicht.
+\end_layout
+
 \begin_layout Section
 Tests des Verfahrens
 \end_layout
 
-\begin_layout Itemize
-mittels Matlab oder Opencv 2 oder 3 Mustererkennungen programmieren
-\end_layout
+\begin_layout Standard
+Um die vorgestellten Algorithmen zu testen nutzen wir die Gesichtsdatenbank
+ der AT&T Laboratories (siehe Abbildung 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Trainingsset"
 
-\begin_deeper
-\begin_layout Itemize
-Z.B.
- 
-\begin_inset Formula $k$
 \end_inset
 
--nearest neighbour & feed forward neuronales Netz
+) in Cambridge 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "samaria-1994"
+
+\end_inset
+
+.
+ Darin befinden sich Bilder der Größe 
+\begin_inset Formula $112\times92$
+\end_inset
+
+ von 40 Personen in unterschiedlichen Posen.
 \end_layout
 
-\end_deeper
-\begin_layout Itemize
-Auswerten & vergleichen nach Erkennungsrate
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename orl_faces/s4/5.pgm
+	width 25text%
+
+\end_inset
+
+
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename orl_faces/s22/6.pgm
+	width 25text%
+
+\end_inset
+
+
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename orl_faces/s34/5.pgm
+	width 25text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Trainingsset"
+
+\end_inset
+
+Bilder aus der Trainingsmenge
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Im Cross-Validation Verfahren erstellen wir Trainings- und Testmengen als
+ Eingabe für die beiden vorgestellten Gesichtserkennungsalgorithmen 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "webb-2002"
+
+\end_inset
+
+.
+ Zusätzlich fügen wir Bilder von Personen in die Testmenge, die nicht in
+ der Trainingsmenge enthalten sind.
+\end_layout
+
+\begin_layout Subsection
+Nearest Neighbour
+\end_layout
+
+\begin_layout Standard
+Wir wählen zufällig einen Repräsentanten für jede Person in der Trainingsmenge.
+ Für jedes Testbild berechnen wir die quadratische euklidische Distanz zu
+ allen Repräsentanten.
+ Der Repräsentant mit der niedrigsten Distanz ist dann die erkannte person,
+ sofern die Distanz kleiner ist als 
+\begin_inset Formula $\vartheta$
+\end_inset
+
+.
+ In Abbildung 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Nearest-Neighbour"
+
+\end_inset
+
+ ist die Erkennungsrate für unterschiedliche 
+\begin_inset Formula $\vartheta$
+\end_inset
+
+ und Eigenface Anzahlen dargestellt.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+missingfigure{Nearest Neighbour}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Nearest-Neighbour"
+
+\end_inset
+
+Nearest Neighbour
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Künstliches neuronales Netz
+\end_layout
+
+\begin_layout Standard
+Wir erstellen ein künstliches neuronales Netz.
+ Als Basisfunktion für die Eingabe und die Versteckte Schicht wählen wir
+ die Sigmoidfunktion.
+ Die Ausgabeschicht hat quadratische Fehlerfunktion als Basisfunktion.
+ Die versteckte Schicht hat die Größe 
+\begin_inset Formula $200$
+\end_inset
+
+, die Ausgabeschicht 40, da wir 40 personen erkennen wollen.
+ Die Eingabeschicht variiert über die unterschiedlichen Versuche, da wir
+ verschieden viele Eigenfaces zur Erkennung nutzen.
+ Wir trainieren das Netz mit 100 Zyklen und online Update der Gewichte.
+ Als Lernrate wählen wir 
+\begin_inset Formula $\eta=0,7$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Zur Erkennung wird nun das neue Gesicht mittels Feed Forward bearbeitet.
+ Das Gesicht wird der Klasse zugeordnet, deren Ausgabeneuron die größte
+ Ausgabe produziert.
+ Sind alle Ausgabeneuronen kleiner als 
+\begin_inset Formula $\vartheta$
+\end_inset
+
+, so wird das Gesicht als unbekannt eingestuft.
+\end_layout
+
+\begin_layout Standard
+In Abbildung 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Neuronales netz"
+
+\end_inset
+
+ ist die Erkennungsrate für unterschiedliche 
+\begin_inset Formula $\vartheta$
+\end_inset
+
+ und Eigenface Anzahlen dargestellt.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+missingfigure{Neuronales netz}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Neuronales netz"
+
+\end_inset
+
+Neuronales netz
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -1019,6 +1566,16 @@ Fazit
 
 \begin_layout Itemize
 wie gut funktioniert der Ansatz?
+\end_layout
+
+\begin_layout Standard
+Dies führt zu der Vorraussetzung, dass alle Bilder unter ähnlichen Bedingungen
+ hinsichtlich der Perspektive und des Hintergrundes gemacht werden müssen.
+ Verändert sich die Perspektive zum Gesicht deutlich, so kann ein Mittelwert
+ von Bildern nicht mehr sinnvoll berechnet werden.
+ Die Streuung um diesen wäre nun nicht mehr abhängig von der aufgenommenen
+ Person, sondern maßgeblich von der Perspektive.
+ Gleiches gilt für den Hintergrund.
 \end_layout
 
 \begin_layout Standard
